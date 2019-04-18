@@ -33,8 +33,12 @@ class Mood(data.Dataset):
         """
         fields = [('text', text_field), ('label', label_field)]
 
-        
-        label_field.preprocessing = data.Pipeline()
+        def get_label_str(label):
+            return {0: 'slightly angry',1: 'fairly angry',2: 'extremely angry',
+                    3: 'slightly fearful',4: 'fairly fearful',5: 'extremely fearful',
+                    6: 'slightly joyful',7: 'fairly joyful',8: 'extremely joyful',
+                    9: 'slightly sad',10: 'fairly sad',11: 'extremely sad'}[label]
+        label_field.preprocessing = data.Pipeline(get_label_str)
         with open(os.path.expanduser(path)) as f:
             if subtrees:
                 examples = [ex for line in f for ex in

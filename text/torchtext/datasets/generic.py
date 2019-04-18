@@ -170,7 +170,8 @@ class Mood(CQA):
                 for line in f:
                     parsed = list(csv.reader([line.rstrip('\n')]))[0]
                     context = parsed[-1]
-                    answer = labels[int(parsed[0])]
+                    print(int(parsed[0]))
+                    answer = labels[int(parsed[0])-1]
                     context_question = get_context_question(context, question)
                     examples.append(data.Example.fromlist(
                         [context, question, answer, CONTEXT_SPECIAL, QUESTION_SPECIAL, context_question], fields))

@@ -24,7 +24,19 @@ class MultitaskQuestionAnsweringNetwork(nn.Module):
         def dp(args):
             return args.dropout_ratio if args.rnn_layers > 1 else 0.
 
-        if self.args.glove_and_char:
+        if self.args.bert:
+            self.encoder_embeddings = Embedding(field, args.dimension, 
+                dropout=args.dropout_ratio, project=not args.cove)
+    
+            if self.args.cove or self.args.intermediate_cove:
+                self.cove = MTLSTM(model_cache=args.embeddings, layer0=args.intermediate_cove, layer1=args.cove)
+                cove_params = get_trainable_params(self.cove) 
+                for p in cove_params:
+                    p.requires_grad = False
+                cove_dim = int(args.intermediate_cove) * 600 + int(args.cove) * 600 + 768 # the last 768 is for bert embeddings
+                self.project_cove = Feedforward(cove_dim, args.dimension)
+
+        if not self.args.bert and self.args.glove_and_char:
         
             self.encoder_embeddings = Embedding(field, args.dimension, 
                 dropout=args.dropout_ratio, project=not args.cove)
@@ -46,7 +58,7 @@ class MultitaskQuestionAnsweringNetwork(nn.Module):
                 p.requires_grad = False
             elmo_dim = 1024 * len(self.args.elmo)
             self.project_elmo = Feedforward(elmo_dim, args.dimension)
-            if self.args.glove_and_char:
+            if self.args.bert or self.args.glove_and_char:
                 self.project_embeddings = Feedforward(2 * args.dimension, args.dimension, dropout=0.0)
         
         self.decoder_embeddings = Embedding(field, args.dimension, 
@@ -103,7 +115,7 @@ class MultitaskQuestionAnsweringNetwork(nn.Module):
             context_elmo =  self.project_elmo(elmo(context_elmo, self.args.elmo, context.device).detach())
             question_elmo = self.project_elmo(elmo(question_elmo, self.args.elmo, question.device).detach())
 
-        if self.args.glove_and_char:
+        if self.args.bert or self.args.glove_and_char:
             context_embedded = self.encoder_embeddings(context)
             question_embedded = self.encoder_embeddings(question)
             if self.args.cove:

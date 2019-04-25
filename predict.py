@@ -40,9 +40,13 @@ def prepare_data(args, FIELD):
     FIELD.append_vocab(new_vocab)
     print(f'Vocabulary has expanded to {len(FIELD.vocab)} tokens')
 
-    char_vectors = torchtext.vocab.CharNGram(cache=args.embeddings)
-    glove_vectors = torchtext.vocab.GloVe(cache=args.embeddings)
-    vectors = [char_vectors, glove_vectors]
+    if self.args.bert:
+        bert_vectors = torchtext.vocab.BERT(cache=args.embeddings)
+        vectors = [bert_vectors]
+    else:
+        char_vectors = torchtext.vocab.CharNGram(cache=args.embeddings)
+        glove_vectors = torchtext.vocab.GloVe(cache=args.embeddings)
+        vectors = [char_vectors, glove_vectors]
     FIELD.vocab.load_vectors(vectors, True)
     FIELD.decoder_to_vocab = {idx: FIELD.vocab.stoi[word] for idx, word in enumerate(FIELD.decoder_itos)}
     FIELD.vocab_to_decoder = {idx: FIELD.decoder_stoi[word] for idx, word in enumerate(FIELD.vocab.itos) if word in FIELD.decoder_stoi}
@@ -213,7 +217,7 @@ def get_args():
                     'transformer_layers', 'rnn_layers', 'transformer_hidden',
                     'dimension', 'load', 'max_val_context_length', 'val_batch_size',
                     'transformer_heads', 'max_output_length', 'max_generative_vocab',
-                    'lower', 'cove', 'intermediate_cove', 'elmo', 'glove_and_char']
+                    'lower', 'cove', 'intermediate_cove', 'elmo', 'glove_and_char','bert']
         for r in retrieve:
             if r in config:
                 setattr(args, r,  config[r])
@@ -221,6 +225,8 @@ def get_args():
                 setattr(args, r, False)
             elif 'elmo' in r:
                 setattr(args, r, [-1])
+            elif 'bert' in r:
+                setattr(args, r, True)
             elif 'glove_and_char' in r:
                 setattr(args, r, True)
             else:

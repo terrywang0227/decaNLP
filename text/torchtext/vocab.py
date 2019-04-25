@@ -111,6 +111,7 @@ class Vocab(object):
                     glove.6B.100d
                     glove.6B.200d
                     glove.6B.300d
+                    bert
         """
         if not isinstance(vectors, list):
             vectors = [vectors]
@@ -336,6 +337,17 @@ class GloVe(Vectors):
         name = 'glove.{}.{}d.txt'.format(name, str(dim))
         super(GloVe, self).__init__(name, url=url, **kwargs)
 
+class BERT(Vectors):
+    # it's a temporary url that will expire； use https://drive.google.com/open?id=1eP-CQCZK1H-pXum37GQs46-33_cAIYbt
+    url = { 
+        'bert':'https://ufile.io/orn1r5kz',
+    }
+
+    # in case you want to use dim=1024, remember to change name
+    def __init__(self, name='bert', dim=768, **kwargs):
+        url = self.url[name]
+        name = 'bert.txt'.format(name, str(dim))
+        super(BERT, self).__init__(name, url=url, **kwargs)
 
 class FastText(Vectors):
 
@@ -396,5 +408,6 @@ pretrained_aliases = {
     "glove.6B.50d": lambda: GloVe(name="6B", dim="50"),
     "glove.6B.100d": lambda: GloVe(name="6B", dim="100"),
     "glove.6B.200d": lambda: GloVe(name="6B", dim="200"),
-    "glove.6B.300d": lambda: GloVe(name="6B", dim="300")
+    "glove.6B.300d": lambda: GloVe(name="6B", dim="300"),
+    'bert':lambda: BERT(name="bert", dim="768")
 }

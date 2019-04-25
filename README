@@ -1,0 +1,11 @@
+MQAN for mood detection task
+Train and validation:
+nvidia-docker run -it - -rm -v `pwd`:/decaNLP/ -u $(id -u):$(id -g) 
+bmccann/decanlp:cuda9_torch041 bash -c "python /decaNLP/train.py 
+- -train_tasks mood - -device 0"
+
+Test Evaluation:
+nvidia-docker run -it --rm -v `pwd`:/decaNLP/ -u $(id -u):$(id -g) 
+bmccann/decanlp:cuda9_torch041 bash -c "python /decaNLP/predict.py 
+- -evaluate valid - -path /to_our_checkpoint - -checkpoint_name 
+iteration_90000.pth - -tasks mood"

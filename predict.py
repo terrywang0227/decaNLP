@@ -53,9 +53,9 @@ def prepare_data(args, FIELD):
 
 def to_iter(data, bs, device):
     Iterator = torchtext.data.Iterator
-    it = Iterator(data, batch_size=bs, 
-       device=device, batch_size_fn=None, 
-       train=False, repeat=False, sort=None, 
+    it = Iterator(data, batch_size=bs,
+       device=device, batch_size_fn=None,
+       train=False, repeat=False, sort=None,
        shuffle=None, reverse=False)
 
     return it
@@ -128,7 +128,7 @@ def run(args, field, val_sets, model):
                             if 'squad' in task:
                                 ids.append(it.dataset.q_ids[int(batch.squad_id[i])])
                             prediction_file.write(pp + '\n')
-                            predictions.append(pp) 
+                            predictions.append(pp)
                 if 'sql' in task:
                     with open(ids_file_name, 'w') as id_file:
                         for i in ids:
@@ -139,14 +139,14 @@ def run(args, field, val_sets, model):
                             id_file.write(i + '\n')
             else:
                 with open(prediction_file_name) as prediction_file:
-                    predictions = [x.strip() for x in prediction_file.readlines()] 
+                    predictions = [x.strip() for x in prediction_file.readlines()]
                 if 'sql' in task or 'squad' in task:
                     with open(ids_file_name) as id_file:
                         ids = [int(x.strip()) for x in id_file.readlines()]
    
             def from_all_answers(an):
-                return [it.dataset.all_answers[sid] for sid in an.tolist()] 
-    
+                return [it.dataset.all_answers[sid] for sid in an.tolist()]
+
             if not os.path.exists(answer_file_name) or args.overwrite:
                 with open(answer_file_name, 'w') as answer_file:
                     answers = []
@@ -160,11 +160,11 @@ def run(args, field, val_sets, model):
                         else:
                             a = field.reverse(batch.answer.data)
                         for aa in a:
-                            answers.append(aa) 
+                            answers.append(aa)
                             answer_file.write(json.dumps(aa) + '\n')
             else:
                 with open(answer_file_name) as answer_file:
-                    answers = [json.loads(x.strip()) for x in answer_file.readlines()] 
+                    answers = [json.loads(x.strip()) for x in answer_file.readlines()]
     
             if len(answers) > 0:
                 if not os.path.exists(results_file_name) or args.overwrite:
@@ -194,7 +194,7 @@ def get_args():
     parser = ArgumentParser()
     parser.add_argument('--path', required=True)
     parser.add_argument('--evaluate', type=str, required=True)
-    parser.add_argument('--tasks', default=['squad', 'iwslt.en.de', 'cnn_dailymail', 'multinli.in.out', 'sst', 'srl', 'zre', 'woz.en', 'wikisql', 'schema'], nargs='+')
+    parser.add_argument('--tasks', default=['squad', 'iwslt.en.de', 'cnn_dailymail', 'multinli.in.out', 'sst', 'srl', 'zre', 'woz.en', 'wikisql', 'schema','mood'], nargs='+')
     parser.add_argument('--devices', default=[0], nargs='+', type=int, help='a list of devices that can be used (multi-gpu currently WIP)')
     parser.add_argument('--seed', default=123, type=int, help='Random seed.')
     parser.add_argument('--data', default='/decaNLP/.data/', type=str, help='where to load data from.')
@@ -209,10 +209,10 @@ def get_args():
 
     with open(os.path.join(args.path, 'config.json')) as config_file:
         config = json.load(config_file)
-        retrieve = ['model', 
-                    'transformer_layers', 'rnn_layers', 'transformer_hidden', 
-                    'dimension', 'load', 'max_val_context_length', 'val_batch_size', 
-                    'transformer_heads', 'max_output_length', 'max_generative_vocab', 
+        retrieve = ['model',
+                    'transformer_layers', 'rnn_layers', 'transformer_hidden',
+                    'dimension', 'load', 'max_val_context_length', 'val_batch_size',
+                    'transformer_heads', 'max_output_length', 'max_generative_vocab',
                     'lower', 'cove', 'intermediate_cove', 'elmo', 'glove_and_char']
         for r in retrieve:
             if r in config:
@@ -236,14 +236,15 @@ def get_args():
         'wikisql': 'lfem',
         'woz.en': 'joint_goal_em',
         'zre': 'corpus_f1',
-        'schema': 'em'}
+        'schema': 'em',
+        'mood': 'mood_metric'}
 
     if not args.checkpoint_name is None:
         args.best_checkpoint = os.path.join(args.path, args.checkpoint_name)
     else:
         assert os.path.exists(os.path.join(args.path, 'process_0.log'))
         args.best_checkpoint = get_best(args)
-           
+    
     return args
 
 
@@ -293,7 +294,7 @@ if __name__ == '__main__':
     save_dict = torch.load(args.best_checkpoint)
     field = save_dict['field']
     print(f'Initializing Model')
-    Model = getattr(models, args.model) 
+    Model = getattr(models, args.model)
     model = Model(field, args)
     model_dict = save_dict['model_state_dict']
     backwards_compatible_cove_dict = {}
@@ -305,5 +306,5 @@ if __name__ == '__main__':
     model.load_state_dict(model_dict)
     field, splits = prepare_data(args, field)
     model.set_embeddings(field.vocab.vectors)
-
+    print("before running")
     run(args, field, splits, model)

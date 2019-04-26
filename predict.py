@@ -40,9 +40,8 @@ def prepare_data(args, FIELD):
     FIELD.append_vocab(new_vocab)
     print(f'Vocabulary has expanded to {len(FIELD.vocab)} tokens')
 
-    char_vectors = torchtext.vocab.CharNGram(cache=args.embeddings)
     glove_vectors = torchtext.vocab.GloVe(cache=args.embeddings)
-    vectors = [char_vectors, glove_vectors]
+    vectors = [glove_vectors]
     FIELD.vocab.load_vectors(vectors, True)
     FIELD.decoder_to_vocab = {idx: FIELD.vocab.stoi[word] for idx, word in enumerate(FIELD.decoder_itos)}
     FIELD.vocab_to_decoder = {idx: FIELD.decoder_stoi[word] for idx, word in enumerate(FIELD.vocab.itos) if word in FIELD.decoder_stoi}
@@ -108,6 +107,7 @@ def run(args, field, val_sets, model):
                         if not args.silent:
                             for l in results_file:
                                 print(l)
+                        print(results_file[0])
                         metrics = json.loads(results_file.readlines()[0])
                         decaScore.append(metrics[args.task_to_metric[task]])
                     continue
@@ -169,7 +169,7 @@ def run(args, field, val_sets, model):
             if len(answers) > 0:
                 if not os.path.exists(results_file_name) or args.overwrite:
                     metrics, answers = compute_metrics(predictions, answers, bleu='iwslt' in task or 'multi30k' in task or args.bleu, dialogue='woz' in task,
-                        rouge='cnn' in task or 'dailymail' in task or args.rouge, logical_form='sql' in task, corpus_f1='zre' in task, args=args)
+                        rouge='cnn' in task or 'dailymail' in task or args.rouge, logical_form='sql' in task, corpus_f1='zre' in task, mood_metric='mood' in task, args=args)
                     with open(results_file_name, 'w') as results_file:
                         results_file.write(json.dumps(metrics) + '\n')
                 else:

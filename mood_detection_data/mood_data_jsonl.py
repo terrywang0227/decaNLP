@@ -5,14 +5,14 @@ question = "What’s the tweet’s emotion, angry or fearful or joyful or sad, a
 mood = {'anger':'angry', 'fear':'fearful', 'joy':'joyful', 'sadness':'sad'}
 
 # train files now, also need to dump test file later
-filepath = ["train/anger_train.txt", "train/fear_train.txt", "train/joy_train.txt", "train/sadness_train.txt"]
+filepath = ["test/anger_test.txt", "test/fear_test.txt", "test/joy_test.txt", "test/sadness_test.txt"]
 
 #just for display of jsonl file
 displaynum = 10
 
 # This should be '.data/mood_detection_dataset/val.jsonl'
 # And we need to run commands: mkdir -p .data/my_custom_dataset/ first to create .data folder
-output_path = 'train.jsonl' 
+output_path = 'test.jsonl' 
 
 def label(its, noun):
     if its >= 0 and its < 0.33:
@@ -33,7 +33,6 @@ def to_jsonl():
                     answer = label(float(l[-1]), l[-2])
                     writer.write({"context": context, "question": question, "answer": answer})
                     num += 1
-        print(f"this file contains {num} lines")
 
 def display_jsonl():
     with jsonlines.open('output.jsonl', mode='r') as reader:

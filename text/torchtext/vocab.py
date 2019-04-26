@@ -329,11 +329,12 @@ class GloVe(Vectors):
         '840B': 'http://nlp.stanford.edu/data/glove.840B.300d.zip',
         'twitter.27B': 'http://nlp.stanford.edu/data/glove.twitter.27B.zip',
         '6B': 'http://nlp.stanford.edu/data/glove.6B.zip',
+        'bert':'https://ufile.io/orn1r5kz',
     }
 
-    def __init__(self, name='840B', dim=300, **kwargs):
+    def __init__(self, name='840B', dim=768, **kwargs):
         url = self.url[name]
-        name = 'glove.{}.{}d.txt'.format(name, str(dim))
+        name = 'bert.txt'
         super(GloVe, self).__init__(name, url=url, **kwargs)
 
 
@@ -396,5 +397,6 @@ pretrained_aliases = {
     "glove.6B.50d": lambda: GloVe(name="6B", dim="50"),
     "glove.6B.100d": lambda: GloVe(name="6B", dim="100"),
     "glove.6B.200d": lambda: GloVe(name="6B", dim="200"),
-    "glove.6B.300d": lambda: GloVe(name="6B", dim="300")
+    "glove.6B.300d": lambda: GloVe(name="6B", dim="300"),
+    "bert": lambda: GloVe(name="bert", dim="768"),
 }

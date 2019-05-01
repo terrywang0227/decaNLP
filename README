@@ -1,3 +1,4 @@
+This project aims to add a new task that can evalute the emotion of a tweet. 
 MQAN for mood detection task
 Train and validation:
 nvidia-docker run -it - -rm -v `pwd`:/decaNLP/ -u $(id -u):$(id -g) 
